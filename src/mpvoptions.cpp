@@ -769,7 +769,7 @@ void MPVProcess::addStereo3DFilter(const QString & in, const QString & out) {
 	arg << "--vf-add=lavfi=[stereo3d=" + input + output + "]";
 }
 
-void MPVProcess::setVideoEqualizerOptions(int contrast, int brightness, int hue, int saturation, int gamma, bool soft_eq) {
+void MPVProcess::setVideoEqualizerOptions(int contrast, int brightness, int hue, int saturation, int gamma, int temperature, bool soft_eq) {
 #ifndef USE_OLD_VIDEO_EQ
 	use_soft_eq = soft_eq;
 #endif
@@ -797,6 +797,10 @@ void MPVProcess::setVideoEqualizerOptions(int contrast, int brightness, int hue,
 		if (hue != 0) arg << "--hue=" + QString::number(hue);
 		if (saturation != 0) arg << "--saturation=" + QString::number(saturation);
 		if (gamma != 0) arg << "--gamma=" + QString::number(gamma);
+	}
+	// 6500 K is neutral, no filter needed
+	if (temperature != 6500) {
+		arg << "--vf-add=@vtemp:lavfi=[colortemperature=temperature=" + QString::number(temperature) + "]";
 	}
 }
 
@@ -1061,6 +1065,16 @@ void MPVProcess::setGamma(int value) {
 	else
 #endif
 	sendCommand("set gamma " + QString::number(value));
+}
+
+void MPVProcess::setTemperature(int value) {
+	// Remove the previous temperature filter (if any)
+	sendCommand("vf " + VFDeleteCmd() + " \"@vtemp\"");
+	// 6500 K is neutral, no filter needed
+	if (value != 6500) {
+		QString f = QString("@vtemp:lavfi=[colortemperature=temperature=%1]").arg(value);
+		sendCommand("vf add \"" + f + "\"");
+	}
 }
 
 void MPVProcess::setChapter(int ID) {
