@@ -232,6 +232,7 @@ public slots:
 	void setBrightness(int value);
 	void setContrast(int value);
 	void setGamma(int value);
+	void setTemperature(int value);
 	void setHue(int value);
 	void setSaturation(int value);
 

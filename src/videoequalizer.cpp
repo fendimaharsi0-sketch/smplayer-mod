@@ -46,6 +46,9 @@ VideoEqualizer::VideoEqualizer( QWidget* parent, Qt::WindowFlags f )
 	connect( gamma_slider, SIGNAL(valueChanged(int)),
              gamma_indicator, SLOT(setNum(int)) );
 
+	connect( temperature_slider, SIGNAL(valueChanged(int)),
+             temperature_indicator, SLOT(setNum(int)) );
+
 	// Reemit signals
 	connect( contrast_slider, SIGNAL(valueChanged(int)),
              this, SIGNAL(contrastChanged(int)) );
@@ -57,6 +60,8 @@ VideoEqualizer::VideoEqualizer( QWidget* parent, Qt::WindowFlags f )
              this, SIGNAL(saturationChanged(int)) );
 	connect( gamma_slider, SIGNAL(valueChanged(int)),
              this, SIGNAL(gammaChanged(int)) );
+	connect( temperature_slider, SIGNAL(valueChanged(int)),
+             this, SIGNAL(temperatureChanged(int)) );
 
 	connect( makedefault_button, SIGNAL(clicked()), 
              this, SIGNAL(requestToChangeDefaultValues()) );
@@ -73,6 +78,7 @@ void VideoEqualizer::reset() {
 	setHue(0);
 	setSaturation(0);
 	setGamma(0);
+	setTemperature(6500);
 }
 
 void VideoEqualizer::on_reset_button_clicked() {

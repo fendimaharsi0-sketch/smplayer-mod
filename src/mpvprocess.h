@@ -79,7 +79,7 @@ public:
 	void addStereo3DFilter(const QString & in, const QString & out);
 	void setSubStyles(const AssStyles & styles, const QString & assStylesFile = QString());
 	void setSubEncoding(const QString & codepage, const QString & enca_lang);
-	void setVideoEqualizerOptions(int contrast, int brightness, int hue, int saturation, int gamma, bool soft_eq);
+	void setVideoEqualizerOptions(int contrast, int brightness, int hue, int saturation, int gamma, int temperature, bool soft_eq);
 
 	// Slave commands
 	void quit();
@@ -108,6 +108,7 @@ public:
 	void setHue(int value);
 	void setSaturation(int value);
 	void setGamma(int value);
+	void setTemperature(int value);
 
 	void setChapter(int ID);
 	void nextChapter();

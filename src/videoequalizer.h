@@ -36,6 +36,7 @@ public slots:
 	void setHue(int v) { hue_slider->setValue(v); }
 	void setSaturation(int v) { saturation_slider->setValue(v); }
 	void setGamma(int v) { gamma_slider->setValue(v); }
+	void setTemperature(int v) { temperature_slider->setValue(v); }
 	void setBySoftware(bool b) { bysoftware_check->setChecked(b); }
 
 	void reset();
@@ -46,6 +47,7 @@ public:
 	int hue() { return hue_slider->value(); }
 	int saturation() { return saturation_slider->value(); }
 	int gamma() { return gamma_slider->value(); }
+	int temperature() { return temperature_slider->value(); }
 	bool bySoftware() { return bysoftware_check->isChecked(); }
 
 signals:
@@ -54,6 +56,7 @@ signals:
 	void hueChanged(int);
 	void saturationChanged(int);
 	void gammaChanged(int);
+	void temperatureChanged(int);
 
 	void visibilityChanged();
 	void requestToChangeDefaultValues();

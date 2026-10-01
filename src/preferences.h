@@ -564,6 +564,7 @@ public:
 	int initial_hue;
 	int initial_saturation;
 	int initial_gamma;
+	int initial_temperature; //! in Kelvin, 6500 is neutral
 
 	AudioEqualizerList initial_audio_equalizer;
 
