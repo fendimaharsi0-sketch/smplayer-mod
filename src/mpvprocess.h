@@ -171,6 +171,7 @@ protected:
 	QString videoEqualizerFilter(SoftVideoEq);
 	void updateSoftVideoEqualizerFilter();
 #endif
+	void updateTemperatureFilter();
 
 #ifdef OSD_WITH_TIMER
 	void toggleInfoOnOSD();
@@ -289,6 +290,13 @@ private:
 	SoftVideoEq previous_soft_eq;
 	#endif
 #endif
+
+	// Color temperature (via mpv vf). The colortemperature filter only
+	// supports RGB, so updateTemperatureFilter() appends a format filter
+	// to convert back to the source pixel format, keeping YUV-dependent
+	// user shaders (hooking LUMA/CHROMA) working.
+	int m_temperature;
+	QString m_video_pixel_format;
 
 #ifdef CAPTURE_STREAM
 	bool capturing;

@@ -799,6 +799,7 @@ void MPVProcess::setVideoEqualizerOptions(int contrast, int brightness, int hue,
 		if (gamma != 0) arg << "--gamma=" + QString::number(gamma);
 	}
 	// 6500 K is neutral, no filter needed
+	m_temperature = temperature;
 	if (temperature != 6500) {
 		arg << "--vf-add=@vtemp:lavfi=[colortemperature=temperature=" + QString::number(temperature) + "]";
 	}
@@ -1068,11 +1069,24 @@ void MPVProcess::setGamma(int value) {
 }
 
 void MPVProcess::setTemperature(int value) {
+	m_temperature = value;
+	updateTemperatureFilter();
+}
+
+void MPVProcess::updateTemperatureFilter() {
 	// Remove the previous temperature filter (if any)
 	sendCommand("vf " + VFDeleteCmd() + " \"@vtemp\"");
 	// 6500 K is neutral, no filter needed
-	if (value != 6500) {
-		QString f = QString("@vtemp:lavfi=[colortemperature=temperature=%1]").arg(value);
+	if (m_temperature != 6500) {
+		QString f = QString("@vtemp:lavfi=[colortemperature=temperature=%1").arg(m_temperature);
+		// colortemperature only supports RGB, which forces a YUV->RGB
+		// conversion that disables YUV-dependent user shaders (shaders
+		// hooking the LUMA/CHROMA planes). Convert back to the source
+		// pixel format so the rest of the chain keeps working.
+		if (!m_video_pixel_format.isEmpty()) {
+			f += QString(",format=%1").arg(m_video_pixel_format);
+		}
+		f += "]";
 		sendCommand("vf add \"" + f + "\"");
 	}
 }
