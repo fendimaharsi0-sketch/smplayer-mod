@@ -2123,7 +2123,7 @@ void Core::startMplayer( QString file, double seek ) {
 			proc->setOption("gamma", QString::number(mset.gamma));
 		}
 		*/
-		proc->setVideoEqualizerOptions(mset.contrast, mset.brightness, mset.hue, mset.saturation, mset.gamma, pref->use_soft_video_eq);
+		proc->setVideoEqualizerOptions(mset.contrast, mset.brightness, mset.hue, mset.saturation, mset.gamma, mset.temperature, pref->use_soft_video_eq);
 	}
 
 
@@ -3303,6 +3303,21 @@ void Core::setGamma(int value) {
 		proc->setGamma(value);
 		mset.gamma= value;
 		displayMessage( tr("Gamma: %1").arg(value) );
+		emit videoEqualizerNeedsUpdate();
+	}
+}
+
+void Core::setTemperature(int value) {
+	qDebug("Core::setTemperature: %d", value);
+
+	if (value > 12000) value = 12000;
+	if (value < 1000) value = 1000;
+
+	if (value != mset.temperature) {
+		proc->setPausingPrefix(pausing_prefix());
+		proc->setTemperature(value);
+		mset.temperature = value;
+		displayMessage( tr("Temperature: %1 K").arg(value) );
 		emit videoEqualizerNeedsUpdate();
 	}
 }
