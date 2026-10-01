@@ -1,0 +1,57 @@
+name: Build Windows Portable (x64)
+
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout build scripts
+        run: git clone https://github.com/smplayer-dev/smplayer-build.git .
+
+      - name: Install sources (this repo, selected branch)
+        uses: actions/checkout@v4
+        with:
+          path: packages/smplayer-portable
+          fetch-depth: 0
+
+      - name: Install themes
+        run: |
+            git clone --depth 1 https://github.com/smplayer-dev/smplayer-themes.git packages\smplayer-themes
+            git clone --depth 1 https://github.com/smplayer-dev/smplayer-skins.git packages\smplayer-skins
+
+      - name: Install mplayer and mpv
+        run: .\uncompress_players.cmd
+
+      - name: Install Qt (64 bit)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '5.15.2'
+          arch: 'win64_mingw81'
+          tools: 'tools_mingw,qt.tools.win64_mingw810'
+
+      - name: Set mingw32 path (64 bit)
+        run: echo "$env:IQTA_TOOLS\mingw810_64\bin\" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Compile themes
+        run: .\compile_themes.cmd
+
+      - name: Compile smplayer (portable)
+        run: .\compile_smplayer.cmd pe
+
+      - name: Install (portable)
+        run: .\install.cmd pe
+
+      - name: Create 7z portable package
+        run: |
+           .\create_portable_package.cmd
+           $filename = Get-Content packages\BUILD\portable_filename.txt -TotalCount 1
+           echo "PACKAGEFILENAME=$filename" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload portable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PACKAGEFILENAME }}
+          path: packages\BUILD\output\${{ env.PACKAGEFILENAME }}
