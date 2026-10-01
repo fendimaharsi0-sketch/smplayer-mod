@@ -1,0 +1,71 @@
+name: Build Windows Setup EXE (x64)
+
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout build scripts
+        run: git clone https://github.com/smplayer-dev/smplayer-build.git .
+
+      - name: Install sources (this repo, selected branch)
+        uses: actions/checkout@v4
+        with:
+          path: packages/smplayer
+          fetch-depth: 0
+
+      - name: Install themes
+        run: |
+            git clone --depth 1 https://github.com/smplayer-dev/smplayer-themes.git packages\smplayer-themes
+            git clone --depth 1 https://github.com/smplayer-dev/smplayer-skins.git packages\smplayer-skins
+
+      - name: Install mplayer and mpv
+        run: .\uncompress_players.cmd
+
+      - name: Install NSIS (if missing)
+        shell: powershell
+        run: |
+          $nsis = "${env:ProgramFiles(x86)}\NSIS\Bin\makensis.exe"
+          if (-not (Test-Path $nsis)) { choco install nsis -y }
+
+      - name: Install Qt (64 bit)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '5.15.2'
+          arch: 'win64_mingw81'
+          tools: 'tools_mingw,qt.tools.win64_mingw810'
+
+      - name: Set mingw32 path (64 bit)
+        run: echo "$env:IQTA_TOOLS\mingw810_64\bin\" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Compile themes
+        run: .\compile_themes.cmd
+
+      - name: Compile smplayer
+        run: .\compile_smplayer.cmd
+
+      - name: Install
+        run: .\install.cmd
+
+      - name: Create installer
+        run: |
+           .\nsis.cmd
+           $filename = Get-Content packages\BUILD\installer_filename.txt -TotalCount 1
+           echo "PACKAGEFILENAME=$filename" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Rename installer (unsigned)
+        shell: bash
+        run: |
+           installer=${{env.PACKAGEFILENAME}}
+           filename=${installer/.exe/-unsigned.exe}
+           mv packages/BUILD/output/$installer packages/BUILD/output/$filename
+           echo "PACKAGEFILENAME=$filename" >> $GITHUB_ENV
+
+      - name: Upload setup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PACKAGEFILENAME }}
+          path: packages\BUILD\output\${{ env.PACKAGEFILENAME }}
