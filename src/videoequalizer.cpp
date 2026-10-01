@@ -23,6 +23,15 @@ VideoEqualizer::VideoEqualizer( QWidget* parent, Qt::WindowFlags f )
 {
 	setupUi(this);
 
+	// The temperature filter is applied through mpv's vf chain, and every
+	// vf change rebuilds the whole chain. Each rebuild fires video-reconfig,
+	// which makes user shader scripts (glsl-shaders) tear down and re-apply
+	// their shaders, so updating on every tick while dragging can leave the
+	// shaders deactivated. Update once the slider settles instead.
+	temperature_timer.setSingleShot(true);
+	temperature_timer.setInterval(350);
+	connect(&temperature_timer, SIGNAL(timeout()), this, SLOT(applyTemperature()));
+
 	/*
 	contrast_indicator->setNum(0);
 	brightness_indicator->setNum(0);
@@ -61,7 +70,7 @@ VideoEqualizer::VideoEqualizer( QWidget* parent, Qt::WindowFlags f )
 	connect( gamma_slider, SIGNAL(valueChanged(int)),
              this, SIGNAL(gammaChanged(int)) );
 	connect( temperature_slider, SIGNAL(valueChanged(int)),
-             this, SIGNAL(temperatureChanged(int)) );
+             &temperature_timer, SLOT(start()) );
 
 	connect( makedefault_button, SIGNAL(clicked()), 
              this, SIGNAL(requestToChangeDefaultValues()) );
@@ -91,7 +100,15 @@ void VideoEqualizer::on_bysoftware_check_stateChanged(int state) {
 	emit bySoftwareChanged(state == Qt::Checked);
 }
 
+void VideoEqualizer::applyTemperature() {
+	temperature_timer.stop();
+	emit temperatureChanged(temperature_slider->value());
+}
+
 void VideoEqualizer::hideEvent( QHideEvent * ) {
+	// Don't lose a pending temperature update if the dialog is closed
+	// while the slider is still settling.
+	if (temperature_timer.isActive()) applyTemperature();
 	emit visibilityChanged();
 }
 

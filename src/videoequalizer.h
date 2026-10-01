@@ -21,6 +21,7 @@
 
 #include "ui_videoequalizer.h"
 #include <QWidget>
+#include <QTimer>
 
 class VideoEqualizer : public QWidget, public Ui::VideoEqualizer
 {
@@ -66,12 +67,20 @@ protected slots:
 	void on_reset_button_clicked();
 	void on_bysoftware_check_stateChanged(int);
 
+	// Emits temperatureChanged() for the slider's current value
+	void applyTemperature();
+
 	virtual void hideEvent( QHideEvent * );
 	virtual void showEvent( QShowEvent * );
 
 protected:
 	virtual void retranslateStrings();
 	virtual void changeEvent( QEvent * event);
+
+private:
+	// Delays the temperature filter update until the slider settles,
+	// instead of rebuilding mpv's vf chain on every tick while dragging.
+	QTimer temperature_timer;
 };
 
 #endif
