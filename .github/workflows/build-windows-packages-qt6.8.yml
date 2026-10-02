@@ -2,8 +2,6 @@ name: Build Windows Packages with Qt 6.8
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
 
 jobs:
   build:

@@ -2,8 +2,6 @@ name: Build Appimage (Ubuntu 22)
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
 
 jobs:
   build:

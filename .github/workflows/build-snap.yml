@@ -2,8 +2,6 @@ name: Build snap package
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
 
 jobs:
   build:
