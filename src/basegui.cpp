@@ -2476,6 +2476,8 @@ void BaseGui::createVideoEqualizer() {
              core, SLOT(setSaturation(int)) );
 	connect( video_equalizer, SIGNAL(gammaChanged(int)), 
              core, SLOT(setGamma(int)) );
+	connect( video_equalizer, SIGNAL(temperatureChanged(int)), 
+             core, SLOT(setTemperature(int)) );
 
 	connect( video_equalizer, SIGNAL(visibilityChanged()),
              this, SLOT(updateWidgets()) );
@@ -4086,6 +4088,7 @@ void BaseGui::updateVideoEqualizer() {
 	video_equalizer->setHue( core->mset.hue );
 	video_equalizer->setSaturation( core->mset.saturation );
 	video_equalizer->setGamma( core->mset.gamma );
+	video_equalizer->setTemperature( core->mset.temperature );
 }
 
 void BaseGui::updateAudioEqualizer() {
@@ -4104,6 +4107,7 @@ void BaseGui::setDefaultValuesFromVideoEqualizer() {
 	pref->initial_hue = video_equalizer->hue();
 	pref->initial_saturation = video_equalizer->saturation();
 	pref->initial_gamma = video_equalizer->gamma();
+	pref->initial_temperature = video_equalizer->temperature();
 
 	QMessageBox::information(this, tr("Information"), 
                              tr("The current values have been stored to be "

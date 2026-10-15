@@ -327,12 +327,13 @@ void MplayerProcess::addStereo3DFilter(const QString & in, const QString & out) 
 	arg << "-vf-add" << filter;
 }
 
-void MplayerProcess::setVideoEqualizerOptions(int contrast, int brightness, int hue, int saturation, int gamma, bool soft_eq) {
+void MplayerProcess::setVideoEqualizerOptions(int contrast, int brightness, int hue, int saturation, int gamma, int temperature, bool soft_eq) {
 	if (contrast != 0) arg << "-contrast" << QString::number(contrast);
 	if (brightness != 0) arg << "-brightness" << QString::number(brightness);
 	if (hue != 0) arg << "-hue" << QString::number(hue);
 	if (saturation != 0) arg << "-saturation" << QString::number(saturation);
 	if (gamma != 0) arg << "-gamma" << QString::number(gamma);
+	// Note: temperature is not supported by mplayer (no colortemperature filter)
 
 	if (soft_eq) {
 		arg << "-vf-add" << "eq2,hue";
@@ -483,6 +484,11 @@ void MplayerProcess::setSaturation(int value) {
 
 void MplayerProcess::setGamma(int value) {
 	sendCommand(pausing_prefix + " gamma " + QString::number(value) + " 1");
+}
+
+void MplayerProcess::setTemperature(int value) {
+	// Not supported by mplayer (no colortemperature filter)
+	qDebug("MplayerProcess::setTemperature: %d (not supported)", value);
 }
 
 void MplayerProcess::setChapter(int ID) {

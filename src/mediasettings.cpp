@@ -69,6 +69,7 @@ void MediaSettings::reset() {
 	gamma = pref->initial_gamma;
 	hue = pref->initial_hue;
 	saturation = pref->initial_saturation;
+	temperature = pref->initial_temperature;
 
 	audio_equalizer = pref->initial_audio_equalizer;
 
@@ -239,6 +240,7 @@ void MediaSettings::list() {
 	qDebug("  gamma: %d", gamma);
 	qDebug("  hue: %d", hue);
 	qDebug("  saturation: %d", saturation);
+	qDebug("  temperature: %d", temperature);
 
 	qDebug("  speed: %f", speed);
 
@@ -378,6 +380,7 @@ void MediaSettings::save(QSettings * set, int player_id) {
 	set->setValue( "gamma", gamma);
 	set->setValue( "hue", hue);
 	set->setValue( "saturation", saturation);
+	set->setValue( "temperature", temperature);
 
 	set->setValue("audio_equalizer", audio_equalizer );
 
@@ -522,6 +525,7 @@ void MediaSettings::load(QSettings * set, int player_id) {
 	gamma = set->value( "gamma", gamma).toInt();
 	hue = set->value( "hue", hue).toInt();
 	saturation = set->value( "saturation", saturation).toInt();
+	temperature = set->value( "temperature", temperature).toInt();
 
 	audio_equalizer = set->value("audio_equalizer", audio_equalizer ).toList();
 

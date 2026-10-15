@@ -593,6 +593,7 @@ void Preferences::reset() {
 	initial_hue = 0;
 	initial_saturation = 0;
 	initial_gamma = 0;
+	initial_temperature = 6500;
 
 	initial_audio_equalizer << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0;
 
@@ -1169,6 +1170,7 @@ void Preferences::save() {
 	set->setValue("initial_hue", initial_hue);
 	set->setValue("initial_saturation", initial_saturation);
 	set->setValue("initial_gamma", initial_gamma);
+	set->setValue("initial_temperature", initial_temperature);
 
 	set->setValue("initial_audio_equalizer", initial_audio_equalizer);
 
@@ -1778,6 +1780,7 @@ void Preferences::load() {
 	initial_hue = set->value("initial_hue", initial_hue).toInt();
 	initial_saturation = set->value("initial_saturation", initial_saturation).toInt();
 	initial_gamma = set->value("initial_gamma", initial_gamma).toInt();
+	initial_temperature = set->value("initial_temperature", initial_temperature).toInt();
 
 	initial_audio_equalizer = set->value("initial_audio_equalizer", initial_audio_equalizer).toList();
 

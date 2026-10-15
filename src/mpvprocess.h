@@ -79,7 +79,7 @@ public:
 	void addStereo3DFilter(const QString & in, const QString & out);
 	void setSubStyles(const AssStyles & styles, const QString & assStylesFile = QString());
 	void setSubEncoding(const QString & codepage, const QString & enca_lang);
-	void setVideoEqualizerOptions(int contrast, int brightness, int hue, int saturation, int gamma, bool soft_eq);
+	void setVideoEqualizerOptions(int contrast, int brightness, int hue, int saturation, int gamma, int temperature, bool soft_eq);
 
 	// Slave commands
 	void quit();
@@ -108,6 +108,7 @@ public:
 	void setHue(int value);
 	void setSaturation(int value);
 	void setGamma(int value);
+	void setTemperature(int value);
 
 	void setChapter(int ID);
 	void nextChapter();
@@ -170,6 +171,7 @@ protected:
 	QString videoEqualizerFilter(SoftVideoEq);
 	void updateSoftVideoEqualizerFilter();
 #endif
+	void updateTemperatureFilter();
 
 #ifdef OSD_WITH_TIMER
 	void toggleInfoOnOSD();
@@ -288,6 +290,13 @@ private:
 	SoftVideoEq previous_soft_eq;
 	#endif
 #endif
+
+	// Color temperature (via mpv vf). The colortemperature filter only
+	// supports RGB, so updateTemperatureFilter() appends a format filter
+	// to convert back to the source pixel format, keeping YUV-dependent
+	// user shaders (hooking LUMA/CHROMA) working.
+	int m_temperature;
+	QString m_video_pixel_format;
 
 #ifdef CAPTURE_STREAM
 	bool capturing;

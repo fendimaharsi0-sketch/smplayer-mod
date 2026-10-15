@@ -47,6 +47,20 @@ using namespace Global;
 
 #define TOO_CHAPTERS_WORKAROUND
 
+// Returns a pixel format name safe to pass to the ffmpeg "format" filter,
+// or an empty string if the format is unknown or hardware-based.
+static QString sanitizedPixelFormat(const QString & fmt) {
+	if (fmt.isEmpty() || fmt == "null") return QString();
+	// Hardware pixel formats can't be negotiated by the software-only
+	// "format" filter; skip the conversion for those (previous behavior).
+	static const QStringList hw_formats = QStringList()
+		<< "vaapi" << "vdpau" << "cuda" << "d3d11" << "d3d11va" << "dxva2_vld"
+		<< "qsv" << "videotoolbox" << "drm_prime" << "opencl" << "mediacodec"
+		<< "mmal" << "vulkan" << "d3d12va" << "amf";
+	if (hw_formats.contains(fmt)) return QString();
+	return fmt;
+}
+
 MPVProcess::MPVProcess(QObject * parent)
 	: PlayerProcess(parent)
 	, notified_mplayer_is_running(false)
@@ -77,6 +91,7 @@ MPVProcess::MPVProcess(QObject * parent)
 	//, dheight(0)
 	, duration(0)
 	, idle(true)
+	, m_temperature(6500)
 {
 	player_id = PlayerID::MPV;
 
@@ -204,6 +219,7 @@ void MPVProcess::parseLine(QByteArray ba) {
                                       << "current-vo" << "current-ao"
                                       << "width" << "height" //<< "dwidth" << "dheight"
                                       << "video-params/aspect"
+                                      << "video-params/pixelformat"
                                       << "track-list/0/demux-rotation"
                                       << "container-fps" << "video-format"
                                       << "audio-codec-name" << "audio-params/samplerate" << "audio-params/channel-count"
@@ -458,6 +474,18 @@ void MPVProcess::socketReadyRead() {
 			else
 			if (name == "video-params/aspect") {
 				md.video_aspect = data.toDouble();
+			}
+			else
+			if (name == "video-params/pixelformat") {
+				QString fmt = sanitizedPixelFormat(data);
+				if (fmt != m_video_pixel_format) {
+					m_video_pixel_format = fmt;
+					qDebug() << "MPVProcess::socketReadyRead: video pixel format:" << m_video_pixel_format;
+					// The source format changed: rebuild the temperature
+					// filter so its output matches, keeping YUV-dependent
+					// user shaders working.
+					if (m_temperature != 6500) updateTemperatureFilter();
+				}
 			}
 			else
 			if (name == "container-fps") {

@@ -21,6 +21,7 @@
 
 #include "ui_videoequalizer.h"
 #include <QWidget>
+#include <QTimer>
 
 class VideoEqualizer : public QWidget, public Ui::VideoEqualizer
 {
@@ -36,6 +37,7 @@ public slots:
 	void setHue(int v) { hue_slider->setValue(v); }
 	void setSaturation(int v) { saturation_slider->setValue(v); }
 	void setGamma(int v) { gamma_slider->setValue(v); }
+	void setTemperature(int v) { temperature_slider->setValue(v); }
 	void setBySoftware(bool b) { bysoftware_check->setChecked(b); }
 
 	void reset();
@@ -46,6 +48,7 @@ public:
 	int hue() { return hue_slider->value(); }
 	int saturation() { return saturation_slider->value(); }
 	int gamma() { return gamma_slider->value(); }
+	int temperature() { return temperature_slider->value(); }
 	bool bySoftware() { return bysoftware_check->isChecked(); }
 
 signals:
@@ -54,6 +57,7 @@ signals:
 	void hueChanged(int);
 	void saturationChanged(int);
 	void gammaChanged(int);
+	void temperatureChanged(int);
 
 	void visibilityChanged();
 	void requestToChangeDefaultValues();
@@ -63,12 +67,20 @@ protected slots:
 	void on_reset_button_clicked();
 	void on_bysoftware_check_stateChanged(int);
 
+	// Emits temperatureChanged() for the slider's current value
+	void applyTemperature();
+
 	virtual void hideEvent( QHideEvent * );
 	virtual void showEvent( QShowEvent * );
 
 protected:
 	virtual void retranslateStrings();
 	virtual void changeEvent( QEvent * event);
+
+private:
+	// Delays the temperature filter update until the slider settles,
+	// instead of rebuilding mpv's vf chain on every tick while dragging.
+	QTimer temperature_timer;
 };
 
 #endif

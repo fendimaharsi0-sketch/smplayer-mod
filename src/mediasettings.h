@@ -84,7 +84,7 @@ public:
 	int volume;
 	bool mute;
 
-	int brightness, contrast, gamma, hue, saturation;
+	int brightness, contrast, gamma, hue, saturation, temperature;
 
 	AudioEqualizerList audio_equalizer;
 
